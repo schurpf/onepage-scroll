@@ -27,6 +27,7 @@
     afterMove: null,
     loop: true,
     responsiveFallback: false,
+    responsiveFallbackVertical: false,
     direction : 'vertical'
 	};
 
@@ -232,17 +233,39 @@
       	}
       }
 
+      //check vertical responsiveness
+      var valForTestVertical = false;
+      var typeOfRFV = typeof settings.responsiveFallbackVertical
+      if(typeOfRFV == "number"){
+        valForTestVertical = $(window).height() < settings.responsiveFallbackVertical;
+      }
+      if(typeOfRFV == "boolean"){
+        valForTestVertical = settings.responsiveFallbackVertical;
+      }
+      if(typeOfRFV == "function"){
+        valFunction = settings.responsiveFallbackVertical();
+        valForTestVertical = valFunction;
+        typeOFv = typeof valForTestVertical;
+        if(typeOFv == "number"){
+          valForTestVertical = $(window).height() < valFunction;
+        }
+      }
+
       //end modification
-      if (valForTest) {
+      if (valForTest || valForTestVertical) {
         $("body").addClass("disabled-onepage-scroll");
         $(document).unbind('mousewheel DOMMouseScroll MozMousePixelScroll');
         el.swipeEvents().unbind("swipeDown swipeUp");
-      } else {
-        if($("body").hasClass("disabled-onepage-scroll")) {
-          $("body").removeClass("disabled-onepage-scroll");
-          $("html, body, .wrapper").animate({ scrollTop: 0 }, "fast");
+        if (settings.updateURL){
+          window.location.hash = 1;
         }
-
+      } else {
+        if($("body").hasClass("disabled-onepage-scroll")) 
+        {
+          $("body").removeClass("disabled-onepage-scroll");
+          $("html, body").animate({ scrollTop: 0 }, "fast");
+          location.reload();
+        }
 
         el.swipeEvents().bind("swipeDown",  function(event){
           if (!$("body").hasClass("disabled-onepage-scroll")) event.preventDefault();
